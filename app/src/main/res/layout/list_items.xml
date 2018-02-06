@@ -31,6 +31,6 @@
         android:layout_alignParentTop="true"
         android:background="@android:color/transparent"
         android:gravity="end"
-        app:srcCompat="@android:drawable/btn_dialog" />
+        app:srcCompat="@android:drawable/ic_menu_delete" />
 
 </RelativeLayout>

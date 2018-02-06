@@ -51,7 +51,16 @@ class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapt
             val item = itemList.get(position)
 
             alert.setTitle(item.name)
-            alert.setMessage("Description :\n" + item.desc + "\nDate due :\n${item.day}/${item.month}/${item.year}")
+            alert.setMessage("Description :\n" + item.desc + "\n\nDate :\n${item.day}/${item.month}/${item.year}")
+            alert.setPositiveButton("Edit") {dialog,
+                                           positiveButton ->
+                (mInflater.context as MainActivity).editTask(item)
+                dialog.dismiss()
+            }
+            alert.setNegativeButton("Exit"){dialog,
+                                              positiveButton ->
+                dialog.dismiss()
+            }
             alert.show()
         }
 
@@ -152,23 +161,23 @@ class MainActivity : AppCompatActivity() {
         addBtn.setOnClickListener{
             layoutChoice.visibility = VISIBLE
             layoutStart.visibility = INVISIBLE
-        }
 
-        addBtnFin.setOnClickListener{
-            val selectedYear = datePicker.year
-            val selectedMonth = datePicker.month
-            val selectedDay = datePicker.dayOfMonth
-            val ToDo = ToDo(nameTxt.text.toString(), descTxt.text.toString(),
-                    selectedYear, selectedMonth, selectedDay)
+            addBtnFin.setOnClickListener{
+                val selectedYear = datePicker.year
+                val selectedMonth = datePicker.month + 1
+                val selectedDay = datePicker.dayOfMonth
+                val ToDo = ToDo(nameTxt.text.toString(), descTxt.text.toString(),
+                        selectedYear, selectedMonth, selectedDay)
 
-            if (nameTxt.text.toString() == "") {
-                addNewItemDialog()
-            }
-            else {
-                toDoList.add(ToDo)
+                if (nameTxt.text.toString() == "") {
+                    addNewItemDialog()
+                }
+                else {
+                    toDoList.add(ToDo)
 
-                adapter.notifyDataSetChanged()
-                choiceEnd()
+                    adapter.notifyDataSetChanged()
+                    choiceEnd()
+                }
             }
         }
 
@@ -178,6 +187,34 @@ class MainActivity : AppCompatActivity() {
 
         adapter = ToDoAdapter(this, toDoList)
         items_list!!.setAdapter(adapter)
+    }
+
+    public fun editTask(item : ToDo) {
+        datePicker.init(item.year, item.month + 1, item.day, null)
+        nameTxt.setText(item.name)
+        descTxt.setText(item.desc)
+
+        addBtnFin.setOnClickListener{
+            val selectedYear = datePicker.year
+            val selectedMonth = datePicker.month + 1
+            val selectedDay = datePicker.dayOfMonth
+            item.year = selectedYear
+            item.month = selectedMonth
+            item.day = selectedDay
+            item.name = nameTxt.text.toString()
+            item.desc = descTxt.text.toString()
+
+            if (nameTxt.text.toString() == "") {
+                addNewItemDialog()
+            }
+            else {
+                adapter.notifyDataSetChanged()
+                choiceEnd()
+            }
+        }
+
+        layoutChoice.visibility = VISIBLE
+        layoutStart.visibility = INVISIBLE
     }
 
     private fun choiceEnd() {
