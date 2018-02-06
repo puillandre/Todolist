@@ -7,10 +7,13 @@ import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.*
+import java.util.*
 
 class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapter() {
 
@@ -43,6 +46,15 @@ class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapt
             this.notifyDataSetChanged()
         }
 
+        vh.label.setOnClickListener {
+            val alert = AlertDialog.Builder(mInflater.context)
+            val item = itemList.get(position)
+
+            alert.setTitle(item.name)
+            alert.setMessage("Description :\n" + item.desc + "\nDate due :\n${item.day}/${item.month}/${item.year}")
+            alert.show()
+        }
+
         return view
     }
     override fun getItem(index: Int): Any {
@@ -61,7 +73,11 @@ class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapt
     }
 }
 
-class ToDo (var name : String = "", var desc : String = ""): Serializable
+class ToDo (var name : String = "",
+            var desc : String = "hullo!",
+            var year: Int = 2018,
+            var month: Int = 1,
+            var day: Int = 1): Serializable
 {
     var done : Boolean = false
 }
@@ -134,11 +150,46 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         addBtn.setOnClickListener{
-            addNewItemDialog()
+            layoutChoice.visibility = VISIBLE
+            layoutStart.visibility = INVISIBLE
+        }
+
+        addBtnFin.setOnClickListener{
+            val selectedYear = datePicker.year
+            val selectedMonth = datePicker.month
+            val selectedDay = datePicker.dayOfMonth
+            val ToDo = ToDo(nameTxt.text.toString(), descTxt.text.toString(),
+                    selectedYear, selectedMonth, selectedDay)
+
+            if (nameTxt.text.toString() == "") {
+                addNewItemDialog()
+            }
+            else {
+                toDoList.add(ToDo)
+
+                adapter.notifyDataSetChanged()
+                choiceEnd()
+            }
+        }
+
+        cancelBtn.setOnClickListener{
+            choiceEnd()
         }
 
         adapter = ToDoAdapter(this, toDoList)
         items_list!!.setAdapter(adapter)
+    }
+
+    private fun choiceEnd() {
+        val c = Calendar.getInstance()
+        val year = c.get(Calendar.YEAR)
+        val month = c.get(Calendar.MONTH)
+        val day = c.get(Calendar.DAY_OF_MONTH)
+        datePicker.init(year, month, day, null)
+        nameTxt.getText().clear()
+        descTxt.getText().clear()
+        layoutChoice.visibility = INVISIBLE
+        layoutStart.visibility = VISIBLE
     }
 
     override fun onResume() {
@@ -161,21 +212,11 @@ class MainActivity : AppCompatActivity() {
     private fun addNewItemDialog() {
         val alert = AlertDialog.Builder(this)
 
-        val itemEditText = EditText (this)
-        alert.setMessage("Add New Item")
-        alert.setTitle("Enter next Task")
+        alert.setMessage("Need a name !")
 
-        alert.setView(itemEditText)
-
-        alert.setPositiveButton("Submit") {dialog,
+        alert.setPositiveButton("OK") {dialog,
                                            positiveButton ->
-            val ToDo = ToDo(itemEditText.text.toString())
-
-            toDoList.add(ToDo)
-
             dialog.dismiss()
-
-            adapter.notifyDataSetChanged()
         }
 
         alert.show()
