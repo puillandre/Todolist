@@ -102,7 +102,6 @@ class MainActivity : AppCompatActivity() {
             var oos: ObjectOutputStream? = null
 
             try {
-                // Open file and write list
                 fos = context.openFileOutput(FILE_NAME, Context.MODE_PRIVATE)
                 oos = ObjectOutputStream(fos)
                 oos.writeObject(tasks)
@@ -128,7 +127,6 @@ class MainActivity : AppCompatActivity() {
             var tasks: MutableList<ToDo>? = ArrayList()
 
             try {
-                // Open file and read list
                 fis = context.openFileInput(FILE_NAME)
                 ois = ObjectInputStream(fis)
 
