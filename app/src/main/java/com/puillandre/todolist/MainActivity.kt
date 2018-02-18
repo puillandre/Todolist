@@ -14,6 +14,14 @@ import android.widget.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.*
 import java.util.*
+import kotlin.collections.ArrayList
+
+enum class SortType {
+    DATE_UP,
+    DATE_DOWN,
+    ALPH_UP,
+    ALPH_DOWN
+}
 
 class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapter() {
 
@@ -21,8 +29,9 @@ class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapt
     private var itemList = toDoItemList
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val itemText: String = itemList.get(position).name as String
-        val done: Boolean = itemList.get(position).done as Boolean
+        val item = itemList.get(position)
+        val itemText: String = item.name as String
+        val done: Boolean = item.done as Boolean
         val view: View
         val vh: ListRowHolder
 
@@ -42,8 +51,22 @@ class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapt
         }
 
         vh.ibDeleteObject.setOnClickListener{
-            itemList.removeAt(position)
-            this.notifyDataSetChanged()
+            val alert = AlertDialog.Builder(mInflater.context)
+            val item = itemList.get(position)
+
+            alert.setTitle(item.name)
+            alert.setMessage("Remove this task ?")
+            alert.setPositiveButton("YES") {dialog,
+                                             positiveButton ->
+                itemList.removeAt(position)
+                (mInflater.context as MainActivity).choiceEnd()
+                dialog.dismiss()
+            }
+            alert.setNegativeButton("NO"){dialog,
+                                            positiveButton ->
+                dialog.dismiss()
+            }
+            alert.show()
         }
 
         vh.label.setOnClickListener {
@@ -83,7 +106,7 @@ class ToDoAdapter(context: Context, toDoItemList: MutableList<ToDo>) : BaseAdapt
 }
 
 class ToDo (var name : String = "",
-            var desc : String = "hullo!",
+            var desc : String = "",
             var year: Int = 2018,
             var month: Int = 1,
             var day: Int = 1): Serializable
@@ -92,7 +115,6 @@ class ToDo (var name : String = "",
 }
 
 class MainActivity : AppCompatActivity() {
-
     object Storage {
         private val LOG_TAG = Storage::class.java.simpleName
         private val FILE_NAME = "todo_list.ser"
@@ -149,17 +171,63 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    val toDoList = mutableListOf<ToDo>()
+    var toDoList = mutableListOf<ToDo>()
     lateinit var adapter: ToDoAdapter
+    private var sorting : SortType = SortType.DATE_DOWN
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        orderBtn.setOnClickListener{
+            when (sorting) {
+                SortType.DATE_DOWN -> {
+                    sorting = SortType.DATE_UP
+                    orderBtn.setImageResource(R.drawable.icon_arrow_up)
+                }
+                SortType.DATE_UP -> {
+                    sorting = SortType.DATE_DOWN
+                    orderBtn.setImageResource(R.drawable.icon_arrow_down)
+                }
+                SortType.ALPH_DOWN -> {
+                    sorting = SortType.ALPH_UP
+                    orderBtn.setImageResource(R.drawable.icon_arrow_up)
+                }
+                SortType.ALPH_UP -> {
+                    sorting = SortType.ALPH_DOWN
+                    orderBtn.setImageResource(R.drawable.icon_arrow_down)
+                }
+            }
+            choiceEnd()
+        }
+
+        sortBtn.setOnClickListener{
+            when (sorting) {
+                SortType.DATE_DOWN -> {
+                    sorting = SortType.ALPH_DOWN
+                    sortBtn.setText("ALPH")
+                }
+                SortType.DATE_UP -> {
+                    sorting = SortType.ALPH_UP
+                    sortBtn.setText("ALPH")
+                }
+                SortType.ALPH_DOWN -> {
+                    sorting = SortType.DATE_DOWN
+                    sortBtn.setText("DATE")
+                }
+                SortType.ALPH_UP -> {
+                    sorting = SortType.DATE_UP
+                    sortBtn.setText("DATE")
+                }
+            }
+            choiceEnd()
+        }
+
         addBtn.setOnClickListener{
             layoutChoice.visibility = VISIBLE
             layoutStart.visibility = INVISIBLE
 
+            addBtnFin.setText("Add")
             addBtnFin.setOnClickListener{
                 val selectedYear = datePicker.year
                 val selectedMonth = datePicker.month + 1
@@ -172,9 +240,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 else {
                     toDoList.add(ToDo)
-
-                    adapter.notifyDataSetChanged()
                     choiceEnd()
+                    adapter.notifyDataSetChanged()
                 }
             }
         }
@@ -187,11 +254,12 @@ class MainActivity : AppCompatActivity() {
         items_list!!.setAdapter(adapter)
     }
 
-    public fun editTask(item : ToDo) {
-        datePicker.init(item.year, item.month + 1, item.day, null)
+    fun editTask(item : ToDo) {
+        datePicker.init(item.year, item.month - 1, item.day, null)
         nameTxt.setText(item.name)
         descTxt.setText(item.desc)
 
+        addBtnFin.setText("Edit")
         addBtnFin.setOnClickListener{
             val selectedYear = datePicker.year
             val selectedMonth = datePicker.month + 1
@@ -206,7 +274,6 @@ class MainActivity : AppCompatActivity() {
                 addNewItemDialog()
             }
             else {
-                adapter.notifyDataSetChanged()
                 choiceEnd()
             }
         }
@@ -215,11 +282,25 @@ class MainActivity : AppCompatActivity() {
         layoutStart.visibility = INVISIBLE
     }
 
-    private fun choiceEnd() {
+    fun choiceEnd() {
         val c = Calendar.getInstance()
         val year = c.get(Calendar.YEAR)
         val month = c.get(Calendar.MONTH)
         val day = c.get(Calendar.DAY_OF_MONTH)
+
+        when (sorting) {
+            SortType.DATE_DOWN -> toDoList.sortWith(compareByDescending<ToDo>{it.year}.
+                    thenByDescending { it.month }.thenByDescending { it.day }.
+                    thenByDescending { it.name })
+            SortType.DATE_UP -> toDoList.sortWith(compareBy<ToDo>{it.year}.thenBy
+            { it.month }.thenBy { it.day }.thenBy { it.name })
+            SortType.ALPH_DOWN -> toDoList.sortWith(compareByDescending<ToDo>{it.name}.
+                    thenByDescending {it.year}.thenByDescending { it.month }.
+                    thenByDescending { it.day })
+            SortType.ALPH_UP -> toDoList.sortWith(compareBy<ToDo>{it.name}.thenBy
+            {it.year}.thenBy { it.month }.thenBy { it.day })
+        }
+        adapter.notifyDataSetChanged()
         datePicker.init(year, month, day, null)
         nameTxt.getText().clear()
         descTxt.getText().clear()
@@ -234,7 +315,18 @@ class MainActivity : AppCompatActivity() {
         {
             toDoList.clear()
             toDoList.addAll(tasks)
-            adapter.notifyDataSetChanged()
+            when (sorting) {
+                SortType.DATE_DOWN -> toDoList.sortWith(compareByDescending<ToDo>{it.year}.
+                        thenByDescending { it.month }.thenByDescending { it.day }.
+                        thenByDescending { it.name })
+                SortType.DATE_UP -> toDoList.sortWith(compareBy<ToDo>{it.year}.thenBy
+                { it.month }.thenBy { it.day }.thenBy { it.name })
+                SortType.ALPH_DOWN -> toDoList.sortWith(compareByDescending<ToDo>{it.name}.
+                        thenByDescending {it.year}.thenByDescending { it.month }.
+                        thenByDescending { it.day })
+                SortType.ALPH_UP -> toDoList.sortWith(compareBy<ToDo>{it.name}.thenBy
+                {it.year}.thenBy { it.month }.thenBy { it.day })
+            }
         }
     }
 

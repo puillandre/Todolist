@@ -27,8 +27,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
         <Button
             android:id="@+id/addBtn"
@@ -37,7 +36,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="40dp"
-            android:fontFamily="sans-serif"
+            android:backgroundTint="@color/colorAccent"
             android:src="@android:drawable/ic_input_add"
             android:text="Add"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -56,6 +55,42 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="Sort By :"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="@+id/sortBtn"
+            app:layout_constraintEnd_toStartOf="@+id/sortBtn"
+            app:layout_constraintTop_toTopOf="@+id/sortBtn" />
+
+        <Button
+            android:id="@+id/sortBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Date"
+            app:layout_constraintBottom_toBottomOf="@+id/orderBtn"
+            app:layout_constraintEnd_toStartOf="@+id/orderBtn"
+            app:layout_constraintTop_toTopOf="@+id/orderBtn" />
+
+        <ImageButton
+            android:id="@+id/orderBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/colorAccent"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView"
+            app:srcCompat="@drawable/icon_arrow_down" />
+
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
@@ -65,15 +100,17 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:text="Name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -95,7 +132,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:text="Description"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/nameTxt" />
@@ -115,15 +152,19 @@
         <DatePicker
             android:id="@+id/datePicker"
             android:layout_width="wrap_content"
-            android:layout_height="286dp"
+            android:layout_height="0dp"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
+            android:datePickerMode="calendar"
+            android:headerBackground="@color/colorPrimaryDark"
             app:layout_constraintBottom_toTopOf="@+id/cancelBtn"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.489"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/descTxt" />
+            app:layout_constraintTop_toBottomOf="@+id/descTxt"
+            app:layout_constraintVertical_bias="0.488" />
 
         <Button
             android:id="@+id/addBtnFin"
@@ -132,7 +173,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="40dp"
-            android:fontFamily="sans-serif"
+            android:backgroundTint="@color/colorAccent"
             android:src="@android:drawable/ic_input_add"
             android:text="Add"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -145,7 +186,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginBottom="16dp"
             android:layout_marginStart="40dp"
-            android:fontFamily="sans-serif"
+            android:backgroundTint="@color/colorAccent"
             android:src="@android:drawable/ic_input_add"
             android:text="Cancel"
             app:layout_constraintBottom_toBottomOf="parent"
